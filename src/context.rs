@@ -37,6 +37,11 @@ use crate::transport::ConfiguredLoginParam;
 use crate::{chatlist_events, stats};
 
 pub use crate::scheduler::connectivity::Connectivity;
+// qxp: structured connectivity report types.
+pub use crate::scheduler::connectivity_report::{
+    ConnectivityDot, ConnectivityLine, ConnectivityQuotaInfo, ConnectivityReport,
+    ConnectivityTransportReport,
+};
 
 /// Builder for the [`Context`].
 ///

@@ -2111,6 +2111,18 @@ impl CommandApi {
         ctx.get_connectivity_html().await
     }
 
+    /// qxp: structured equivalent of `get_connectivity_html` for clients that
+    /// render their own connectivity UI instead of a webview. Strings inside
+    /// the report are pre-localized via the same stock strings as the HTML
+    /// report. Emits the same `ConnectivityChanged` event.
+    async fn get_connectivity_report(
+        &self,
+        account_id: u32,
+    ) -> Result<types::connectivity::ConnectivityReport> {
+        let ctx = self.get_context(account_id).await?;
+        Ok(ctx.get_connectivity_report().await?.into())
+    }
+
     // ---------------------------------------------
     //                  locations
     // ---------------------------------------------

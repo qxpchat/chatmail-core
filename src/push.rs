@@ -36,21 +36,25 @@ pub struct PushSubscriber {
     inner: Arc<RwLock<PushSubscriberState>>,
 }
 
-/// The key was generated with
-/// `rsop generate-key --profile rfc9580`
-/// and public key was extracted with `rsop extract-cert`.
+/// qxp notifier OpenPGP public key (encrypts device tokens client-side
+/// before they leave the device — either via IMAP SETMETADATA on the
+/// qxp relay, or via heartbeat POST to `notifications.qxp.chat/register`).
+/// Generated with `rsop generate-key --profile rfc9580` + `extract-cert`;
+/// matching privkey lives at `~/.qxp-secrets/notifier.privkey` and deploys
+/// to `/etc/qxp-notifier/privkey` on the notifier box. **Loss of the
+/// privkey breaks push for every installed qxp build until a new app
+/// version ships with a new pubkey.** See `ios/notifier/README.md`.
 const NOTIFIERS_PUBLIC_KEY: &str = "-----BEGIN PGP PUBLIC KEY BLOCK-----
 
-xioGZ03cdhsAAAAg6PasQQylEuWAp9N5PXN93rqjZdqOqN3s9RJEU/K8FZzCsAYf
-GwoAAABBBQJnTdx2AhsDAh4JCAsJCAcKDQwLBRUKCQgLAhYCIiEGiJJktnCmEtXa
-qsSIGRJtupMnxycz/yT0xZK9ez+YkmIAAAAAUfgg/sg0sR2mytzADFBpNAaY0Hyu
-aru8ics3eUkeNn2ziL4ZsIMx+4mcM5POvD0PG9LtH8Rz/y9iItD0c2aoRBab7iri
-/gDm6aQuj3xXgtAiXdaN9s+QPxR9gY/zG1t9iXgBzioGZ03cdhkAAAAgwJ0wQFsk
-MGH4jklfK1fFhYoQZMjEFCRBIk+r1S+WaSDClQYYGwgAAAAsBQJnTdx2AhsMIiEG
-iJJktnCmEtXaqsSIGRJtupMnxycz/yT0xZK9ez+YkmIAAAAKCRCIkmS2cKYS1WdP
-EFerccH2BoIPNbrxi6hwvxxy7G1mHg//ofD90fqmeY9xTfKMYl16bqQh4R1PiYd5
-LMc5VqgXHgioqTYKbltlOtWC+HDt/PrymQsN4q/aEmsM
-=5jvt
+xioGahU/WhsAAAAg41uqOGztF6MsmmyKK+xj+Vm8ijrxFCzFDIQaZJ+/gKrCqgYf
+GwgAAABLBQJqFT9aIiEGGyDnnEIvxnUJBp9Gtbzogcs/jXTC7v//vjEEvba8oXAC
+GwMCHgkECwkIBwYVCg4JCAwBFg0nCQIIAgcCCQEIAQcBAAAAAJaGEN+TE0q7O/TG
+mwuvLvgGAefGAyOnnfOR1F6W2uubheWYlpHCbmEOnTL5671/4EPuFp3y/XmrwfBL
+IDPzNOIMsYAzNkII+U1afk0AwuZVx/sFzioGahU/WhkAAAAgUnX87E12O2FAtQ0Q
+nSObTBApPYmzvAFPhTv7XAqsvGDCiwYYGwgAAAAsBQJqFT9aAhsMIiEGGyDnnEIv
+xnUJBp9Gtbzogcs/jXTC7v//vjEEvba8oXAAAAAA8IgQX3CKkn9/psMuum15yAGi
+TMdY2pfkVT2x4zkf2BM0GhHWcuSJ8XboCzmXOu9bQxmITvRjnRv7pve679/4xnUA
+nRWzr9Yj8uT02c6cBHkxqgU=
 -----END PGP PUBLIC KEY BLOCK-----";
 
 /// Pads the token with spaces.
@@ -139,7 +143,7 @@ impl PushSubscriber {
         info!(context, "Subscribing for heartbeat notifications.");
         if http::post_string(
             context,
-            "https://notifications.delta.chat/register",
+            "https://notifications.qxp.chat/register",
             format!("{{\"token\":\"{token}\"}}"),
         )
         .await?

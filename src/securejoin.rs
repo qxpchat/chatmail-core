@@ -169,14 +169,19 @@ pub async fn get_securejoin_qr(context: &Context, chat: Option<ChatId>) -> Resul
             .to_string()
             .replace("%20", "+");
 
+        // qxp fork: emit the bare OPENPGP4FPR URI scheme instead of the
+        // upstream `https://i.delta.chat/#...` URL form. Frontends build
+        // any branded landing link (qxp.chat/invite, i.delta.chat, …) from
+        // these fields client-side. `check_qr` continues to accept both
+        // forms, so old QR codes scanned in the wild still work.
         if chat.typ == Chattype::OutBroadcast {
-            // For historic reansons, broadcasts currently use j instead of i for the invitenumber.
+            // For historic reasons, broadcasts currently use j instead of i for the invitenumber.
             format!(
-                "https://i.delta.chat/#{fingerprint}&v=3&x={grpid}&j={invitenumber}&s={auth}&a={self_addr_urlencoded}&n={self_name_urlencoded}&b={chat_name_urlencoded}",
+                "OPENPGP4FPR:{fingerprint}#v=3&x={grpid}&j={invitenumber}&s={auth}&a={self_addr_urlencoded}&n={self_name_urlencoded}&b={chat_name_urlencoded}",
             )
         } else {
             format!(
-                "https://i.delta.chat/#{fingerprint}&v=3&x={grpid}&i={invitenumber}&s={auth}&a={self_addr_urlencoded}&n={self_name_urlencoded}&g={chat_name_urlencoded}",
+                "OPENPGP4FPR:{fingerprint}#v=3&x={grpid}&i={invitenumber}&s={auth}&a={self_addr_urlencoded}&n={self_name_urlencoded}&g={chat_name_urlencoded}",
             )
         }
     } else {
@@ -188,8 +193,9 @@ pub async fn get_securejoin_qr(context: &Context, chat: Option<ChatId>) -> Resul
         context.sync_qr_code_tokens(None).await?;
         context.scheduler.interrupt_smtp().await;
 
+        // qxp fork: emit OPENPGP4FPR URI (see comment above).
         format!(
-            "https://i.delta.chat/#{fingerprint}&v=3&i={invitenumber}&s={auth}&a={self_addr_urlencoded}&n={self_name_urlencoded}",
+            "OPENPGP4FPR:{fingerprint}#v=3&i={invitenumber}&s={auth}&a={self_addr_urlencoded}&n={self_name_urlencoded}",
         )
     };
 

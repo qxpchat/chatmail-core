@@ -28,6 +28,8 @@ use crate::transport::ConfiguredLoginParam;
 use crate::{constants, stats};
 
 pub(crate) mod connectivity;
+// qxp: structured connectivity report — sibling module, additive-only.
+pub(crate) mod connectivity_report;
 
 /// State of the IO scheduler, as stored on the [`Context`].
 ///

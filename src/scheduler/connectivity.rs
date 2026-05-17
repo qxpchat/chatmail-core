@@ -45,7 +45,7 @@ pub enum Connectivity {
 // because there is no internet connection - the connectivity for the whole
 // account will be `Notconnected`.
 #[derive(Debug, Default, Clone, PartialEq, Eq, EnumProperty, PartialOrd)]
-enum DetailedConnectivity {
+pub(super) enum DetailedConnectivity {
     Error(String),
     #[default]
     Uninitialized,
@@ -101,7 +101,7 @@ impl DetailedConnectivity {
         }
     }
 
-    fn to_string_imap(&self, context: &Context) -> String {
+    pub(super) fn to_string_imap(&self, context: &Context) -> String {
         match self {
             DetailedConnectivity::Error(e) => stock_str::error(context, e),
             DetailedConnectivity::Uninitialized => "Not started".to_string(),
@@ -115,7 +115,7 @@ impl DetailedConnectivity {
         }
     }
 
-    fn to_string_smtp(&self, context: &Context) -> String {
+    pub(super) fn to_string_smtp(&self, context: &Context) -> String {
         match self {
             DetailedConnectivity::Error(e) => stock_str::error(context, e),
             DetailedConnectivity::Uninitialized => {
@@ -173,7 +173,7 @@ impl ConnectivityStore {
         self.set(context, DetailedConnectivity::Idle);
     }
 
-    fn get_detailed(&self) -> DetailedConnectivity {
+    pub(super) fn get_detailed(&self) -> DetailedConnectivity {
         self.0.lock().deref().clone()
     }
     fn get_basic(&self) -> Connectivity {

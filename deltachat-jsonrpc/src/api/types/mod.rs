@@ -2,6 +2,8 @@ pub mod account;
 pub mod calls;
 pub mod chat;
 pub mod chat_list;
+// qxp: structured connectivity report.
+pub mod connectivity;
 pub mod contact;
 pub mod events;
 pub mod http;

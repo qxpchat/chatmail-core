@@ -1648,7 +1648,17 @@ impl Session {
 
                 context.push_subscribed.store(true, Ordering::Relaxed);
             }
-        } else if !context.push_subscriber.heartbeat_subscribed().await {
+        }
+        // qxp patch: run heartbeat subscribe in parallel with SETMETADATA,
+        // not as a fallback. Reason: `nine.testrun.org` (legacy default)
+        // advertises XDELTAPUSH so upstream would pick the Connected path
+        // — but that relay forwards encrypted tokens to delta.chat's
+        // notifier, which can't decrypt qxp's pubkey, so pushes silently
+        // drop. Heartbeat to `notifications.qxp.chat` is the safety net.
+        // Side effect: `dc_get_push_state` still returns Connected for
+        // those accounts; the iOS UI papers over this with a relay
+        // allow-list (Phase 5 of `spec/plans/push-notifications.md`).
+        if !context.push_subscriber.heartbeat_subscribed().await {
             let context = context.clone();
             // Subscribe for heartbeat notifications.
             tokio::spawn(async move { context.push_subscriber.subscribe(&context).await });
